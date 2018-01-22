@@ -1,0 +1,4 @@
+python-slugify==1.2.4
+pony==0.7.3
+psycopg2==2.7.3.2
+
