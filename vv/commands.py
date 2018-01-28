@@ -26,6 +26,6 @@ def write_site():
     config = get_config()
     project_name = config['WEBSITE']['project']
     project = Project.get(name=project_name)
-    project.write_site('books')
+    project.write_site(config['WEBSITE']['path'])
 
 

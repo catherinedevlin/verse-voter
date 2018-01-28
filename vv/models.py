@@ -30,6 +30,15 @@ WEBSITE_VERSE_TEMPLATE = '''
 '''
 
 
+JEKYLL_FRONT_MATTER = '''---
+layout: page
+title: {title}
+---
+
+# {title}
+'''
+
+
 class Project(db.Entity):
     name = orm.Required(str)
     books = orm.Set('Book')
@@ -38,8 +47,9 @@ class Project(db.Entity):
     notes = orm.Optional(str)
 
     def markdown(self):
+        yield JEKYLL_FRONT_MATTER.format(title=self.name)
         for book in self.books.order_by(Book.n):
-            yield f'- [{book.name}]({slugify(book.name)}.md)\n'
+            yield f'- [{book.name}]({slugify(book.name)})\n'
 
     def write_site(self, path):
         path = join(path, slugify(self.name))
@@ -67,10 +77,12 @@ class Book(db.Entity):
     CHAPTER_LINK_TEMPLATE = '- [{c.n}](slugify(c.name))'
 
     def markdown(self):
+        yield JEKYLL_FRONT_MATTER.format(title=self.name)
         for c in self.chapters.order_by(Chapter.n):
-            yield f'- [{c.n}]({slugify(c.name)}.md)\n'
+            yield f'- [{c.n}]({slugify(c.name)}.html)\n'
 
     def write_site(self, path):
+        # import pdb; pdb.set_trace()
         path = join(path, slugify(self.name))
         with open(path + '.md', 'w') as outfile:
             outfile.writelines(self.markdown())
@@ -92,10 +104,12 @@ class Chapter(db.Entity):
         return f'{self.book_id.name} {self.n}'
 
     def markdown(self):
+        yield JEKYLL_FRONT_MATTER.format(title=self.name)
         for v in self.verses.order_by(Verse.n):
             yield from v.markdown()
 
     def write_site(self, path):
+        # import pdb; pdb.set_trace()
         path = join(path, slugify(self.name))
         with open(path + '.md', 'w') as outfile:
             outfile.writelines(self.markdown())
